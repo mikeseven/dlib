@@ -7,7 +7,6 @@
    <!-- ************************************************************************* -->
 
    <body>
-         <br/><br/>
          <p>
             This page documents the core linear algebra tools included in dlib.
             In particular, the three most important objects in this part of the library are the
@@ -307,6 +306,10 @@
                <item>
                   <name>colm</name>
                   <link>dlib/matrix/matrix_subexp_abstract.h.html#colm</link>
+               </item>
+               <item>
+                  <name>set_ptrm</name>
+                  <link>dlib/matrix/matrix_subexp_abstract.h.html#set_ptrm</link>
                </item>
                <item>
                   <name>set_subm</name>

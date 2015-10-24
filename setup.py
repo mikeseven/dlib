@@ -43,6 +43,7 @@ from subprocess import Popen, PIPE, STDOUT
 import signal
 from threading import Thread
 import time
+import re
 
 
 # change directory to this module path
@@ -255,7 +256,6 @@ _ON_POSIX = 'posix' in sys.builtin_module_names
 def enqueue_output(out, queue):
     for line in iter(out.readline, b''):
         queue.put(line)
-    out.close()
 
 
 def _log_buf(buf):
@@ -297,6 +297,11 @@ def run_process(cmds, timeout=None):
             elapsed = time.time() - _time
             if timeout and elapsed > timeout:
                 break
+        # Make sure we print all the output from the process.
+        if p.stdout:
+            for line in p.stdout:
+                _log_buf(line)
+            p.wait()
     except (KeyboardInterrupt, SystemExit) as e:
         # if user interrupted
         pass
@@ -340,9 +345,10 @@ def readme(fname):
 def read_version():
     """Read version information
     """
-    major = readme('./docs/.current_release_number').strip()
-    minor = readme('./docs/.current_minor_release_number').strip()
-    return major + '.' + minor
+    major = re.findall("set\(CPACK_PACKAGE_VERSION_MAJOR.*\"(.*)\"", open('dlib/CMakeLists.txt').read())[0]
+    minor = re.findall("set\(CPACK_PACKAGE_VERSION_MINOR.*\"(.*)\"", open('dlib/CMakeLists.txt').read())[0]
+    patch = re.findall("set\(CPACK_PACKAGE_VERSION_PATCH.*\"(.*)\"", open('dlib/CMakeLists.txt').read())[0]
+    return major + '.' + minor + '.' + patch 
 
 
 def rmtree(name):
@@ -407,7 +413,7 @@ class build(_build):
             # just so that we can `import dlib` and not `from dlib import dlib`
             f.write('from .dlib import *\n')
             # add version here
-            f.write('__version__ = {ver}\n'.format(ver=read_version()))
+            f.write('__version__ = "{ver}"\n'.format(ver=read_version()))
         with open(os.path.join(dist_dir_examples, '__init__.py'), 'w'):
             pass
 
@@ -546,7 +552,7 @@ setup(
     version=read_version(),
     keywords=['dlib', 'Computer Vision', 'Machine Learning'],
     description='A toolkit for making real world machine learning and data analysis applications',
-    long_description=readme('./README.txt'),
+    long_description=readme('dlib/README.txt'),
     author='Davis King',
     author_email='davis@dlib.net',
     url='https://github.com/davisking/dlib',
@@ -567,7 +573,6 @@ setup(
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: Boost Software License (BSL)',
         'Operating System :: MacOS :: MacOS X',
         'Operating System :: POSIX',
         'Operating System :: POSIX :: Linux',
@@ -581,6 +586,7 @@ setup(
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.4',
         'Topic :: Scientific/Engineering',
+        'Topic :: Scientific/Engineering :: Artificial Intelligence',
         'Topic :: Scientific/Engineering :: Image Recognition',
         'Topic :: Software Development',
     ],
