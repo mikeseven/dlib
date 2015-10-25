@@ -246,10 +246,10 @@ if (NOT TARGET dlib)
       INCLUDE (CheckFunctionExists)
 
       if (DLIB_PNG_SUPPORT)
-         # try to find libpng 
+         # try to find libpng
          find_package(PNG QUIET)
          # Make sure there isn't something wrong with the version of LIBPNG
-         # installed on this system.  
+         # installed on this system.
          if (PNG_FOUND)
             set(CMAKE_REQUIRED_LIBRARIES ${PNG_LIBRARY})
             CHECK_FUNCTION_EXISTS(png_create_read_struct LIBPNG_IS_GOOD)
@@ -300,9 +300,9 @@ if (NOT TARGET dlib)
       endif()
 
       if (DLIB_JPEG_SUPPORT)
-         # try to find libjpeg 
+         # try to find libjpeg
          find_package(JPEG QUIET)
-         # Make sure there isn't something wrong with the version of libjpeg 
+         # Make sure there isn't something wrong with the version of libjpeg
          # installed on this system.  Also don't use the installed libjpeg
          # if this is an APPLE system because apparently it's broken (as of 2015/01/01).
          if (JPEG_FOUND)
@@ -342,7 +342,7 @@ if (NOT TARGET dlib)
                   external/libjpeg/jmemnobs.cpp
                   external/libjpeg/jquant1.cpp
                   external/libjpeg/jquant2.cpp
-                  external/libjpeg/jutils.cpp  
+                  external/libjpeg/jutils.cpp
                   external/libjpeg/jcapimin.cpp
                   external/libjpeg/jdatadst.cpp
                   external/libjpeg/jcparam.cpp
@@ -351,12 +351,12 @@ if (NOT TARGET dlib)
                   external/libjpeg/jcinit.cpp
                   external/libjpeg/jcmaster.cpp
                   external/libjpeg/jcdctmgr.cpp
-                  external/libjpeg/jccoefct.cpp  
-                  external/libjpeg/jccolor.cpp  
-                  external/libjpeg/jchuff.cpp  
-                  external/libjpeg/jcmainct.cpp  
-                  external/libjpeg/jcphuff.cpp  
-                  external/libjpeg/jcprepct.cpp  
+                  external/libjpeg/jccoefct.cpp
+                  external/libjpeg/jccolor.cpp
+                  external/libjpeg/jchuff.cpp
+                  external/libjpeg/jcmainct.cpp
+                  external/libjpeg/jcphuff.cpp
+                  external/libjpeg/jcprepct.cpp
                   external/libjpeg/jcsample.cpp
                   external/libjpeg/jfdctint.cpp
                   external/libjpeg/jfdctflt.cpp
@@ -371,7 +371,7 @@ if (NOT TARGET dlib)
 
 
       if (DLIB_USE_BLAS OR DLIB_USE_LAPACK)
-         # Try to find BLAS and LAPACK 
+         # Try to find BLAS and LAPACK
          include(cmake_find_blas.txt)
 
          if (DLIB_USE_BLAS)
@@ -441,16 +441,16 @@ if (NOT TARGET dlib)
    if (NOT DLIB_IN_PROJECT_BUILD)
        if(UNIX)
            set_target_properties(dlib-shared PROPERTIES
-                                        OUTPUT_NAME dlib 
+                                        OUTPUT_NAME dlib
                                         VERSION ${VERSION})
            install(TARGETS dlib dlib-shared
-                   EXPORT dlib 
+                   EXPORT dlib
                    RUNTIME DESTINATION bin # Windows (including cygwin) considers .dll to be runtime artifacts
                    LIBRARY DESTINATION lib
                    ARCHIVE DESTINATION lib)
        else()
            install(TARGETS dlib
-                   EXPORT dlib 
+                   EXPORT dlib
                    RUNTIME DESTINATION bin # Windows considers .dll to be runtime artifacts
                    LIBRARY DESTINATION lib
                    ARCHIVE DESTINATION lib)
@@ -487,9 +487,9 @@ if (NOT TARGET dlib)
            COMPATIBILITY AnyNewerVersion
            )
 
-       install(FILES 
-                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfig.cmake" 
-                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfigVersion.cmake" 
+       install(FILES
+                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfig.cmake"
+                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfigVersion.cmake"
                DESTINATION ${ConfigPackageLocation})
    endif()
 
