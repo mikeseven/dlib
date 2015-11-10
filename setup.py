@@ -2,6 +2,10 @@
  Copyright (C) 2015  Ehsan Azar (dashesy@linux.com)
  License: Boost Software License   See LICENSE.txt for the full license.
 
+This file basically just uses CMake to compile the dlib python bindings project
+located in the tools/python folder and then puts the outputs into standard
+python packages.
+
 To build the dlib:
     python setup.py build
 To build and install:
@@ -552,7 +556,7 @@ setup(
     version=read_version(),
     keywords=['dlib', 'Computer Vision', 'Machine Learning'],
     description='A toolkit for making real world machine learning and data analysis applications',
-    long_description=readme('dlib/README.txt'),
+    long_description=readme('README.txt'),
     author='Davis King',
     author_email='davis@dlib.net',
     url='https://github.com/davisking/dlib',

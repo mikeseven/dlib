@@ -52,9 +52,9 @@ mkdir $RELDIR
 cd $RELDIR || report_failure
 cp -r ../../docs/cache/* . || report_failure
 
-echo Version: $RELEASE >> dlib/README.txt
-echo "Date:    `date`" >> dlib/README.txt
-echo Mercurial Revision ID: $CHANGESET_ID >> dlib/README.txt
+echo Version: $RELEASE >> README.txt
+echo "Date:    `date`" >> README.txt
+echo Mercurial Revision ID: $CHANGESET_ID >> README.txt
 
 
 
@@ -69,7 +69,6 @@ tar -cf $SOURCE_TAR $RELDIR  || report_failure
 #find $RELDIR -name "*.cpp" -or -name "*.h" -or -name "*.txt" -or -name "*.html" -or -name "*.py" | xargs flip -m
 find $RELDIR -name "*.cpp" -or -name "*.h" -or -name "*.txt" -or -name "*.html" -or -name "*.py" | xargs unix2dos &> /dev/null 
 
-scp davis@home.dlib.net:dlib_win_python/* $RELDIR/python_examples || report_failure
 zip -r9 $SOURCE_ZIP $RELDIR > /dev/null || report_failure
 tar -C ../docs -cf $WEBPAGE web || report_failure
 bzip2 $SOURCE_TAR || report_failure
