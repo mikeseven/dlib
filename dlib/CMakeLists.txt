@@ -21,8 +21,8 @@ set(VERSION ${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPAC
 
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
 # Suppress cmake warnings about changes in new versions.
-if(COMMAND cmake_policy)
-   cmake_policy(SET CMP0003 NEW)
+if(COMMAND cmake_policy) 
+   cmake_policy(SET CMP0003 NEW) 
    if (POLICY CMP0054)
       cmake_policy(SET CMP0054 NEW)
    endif()
@@ -30,30 +30,11 @@ endif()
 
 include(add_global_compiler_switch.cmake)
 
-# make macros that can add #define directives to the entire project.  Not just
-# to the dlib library itself.  I.e. to dlib and to any projects that depend
-# on dlib.
-macro ( add_global_define def_name )
-   if (NOT CMAKE_CXX_FLAGS MATCHES "-D${def_name}")
-      set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D${def_name}"
-         CACHE STRING "Flags used by the compiler during all C++ builds."
-         FORCE)
-   endif ()
-endmacro()
-macro ( remove_global_define def_name )
-   if (CMAKE_CXX_FLAGS MATCHES " -D${def_name}")
-      string (REGEX REPLACE " -D${def_name}" "" temp_var ${CMAKE_CXX_FLAGS})
-      set (CMAKE_CXX_FLAGS "${temp_var}"
-         CACHE STRING "Flags used by the compiler during all C++ builds."
-         FORCE)
-   endif ()
-endmacro()
-
 
 # Make sure ENABLE_ASSERTS is defined for debug builds
 if (NOT CMAKE_CXX_FLAGS_DEBUG MATCHES "-DENABLE_ASSERTS")
-   set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DENABLE_ASSERTS"
-      CACHE STRING "Flags used by the compiler during C++ debug builds."
+   set (CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DENABLE_ASSERTS" 
+      CACHE STRING "Flags used by the compiler during C++ debug builds." 
       FORCE)
 endif ()
 
@@ -62,16 +43,16 @@ endif ()
 # because it avoids getting warnings/errors about cmake policy CMP0002.  This
 # happens when a project tries to call add_subdirectory() on dlib more than
 # once.  This most often happens when the top level of a project depends on two
-# or more other things which both depend on dlib.
+# or more other things which both depend on dlib. 
 if (NOT TARGET dlib)
 
-   set (DLIB_ISO_CPP_ONLY_STR
+   set (DLIB_ISO_CPP_ONLY_STR 
    "Enable this if you don't want to compile any non-ISO C++ code (i.e. you don't use any of the API Wrappers)" )
-   set (DLIB_NO_GUI_SUPPORT_STR
+   set (DLIB_NO_GUI_SUPPORT_STR 
    "Enable this if you don't want to compile any of the dlib GUI code" )
-   set (DLIB_ENABLE_STACK_TRACE_STR
+   set (DLIB_ENABLE_STACK_TRACE_STR 
    "Enable this if you want to turn on the DLIB_STACK_TRACE macros" )
-   set (DLIB_ENABLE_ASSERTS_STR
+   set (DLIB_ENABLE_ASSERTS_STR 
    "Enable this if you want to turn on the DLIB_ASSERT macro" )
    set (DLIB_USE_BLAS_STR
    "Disable this if you don't want to use a BLAS library" )
@@ -105,7 +86,7 @@ if (NOT TARGET dlib)
    option(DLIB_LINK_WITH_SQLITE3 ${DLIB_LINK_WITH_SQLITE3_STR} ON)
    #option(DLIB_USE_FFTW ${DLIB_USE_FFTW_STR} ON)
 
-   set(source_files
+   set(source_files 
          base64/base64_kernel_1.cpp
          bigint/bigint_kernel_1.cpp
          bigint/bigint_kernel_2.cpp
@@ -155,7 +136,7 @@ if (NOT TARGET dlib)
          stack_trace.cpp
          )
 
-      # we want to link to the right stuff depending on our platform.
+      # we want to link to the right stuff depending on our platform.  
       if (WIN32 AND NOT CYGWIN) ###############################################################################
          if (DLIB_NO_GUI_SUPPORT)
             set (dlib_needed_libraries ws2_32 winmm)
@@ -167,25 +148,29 @@ if (NOT TARGET dlib)
          set (dlib_needed_libraries ${pthreadlib})
 
          if (NOT DLIB_NO_GUI_SUPPORT)
-            find_library(xlib X11
-               PATHS
-               /opt/X11/lib
-               )
-            # Make sure X11 is in the include path.  Note that we look for
-            # Xlocale.h rather than Xlib.h because it avoids finding a partial
-            # copy of the X11 headers on systems with anaconda installed.
-            find_path(xlib_path Xlocale.h
-               PATHS
-               /Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include
-               /opt/local/include
-               /opt/X11/include
-               PATH_SUFFIXES X11
-               )
-            if (xlib AND xlib_path)
-               get_filename_component(x11_path ${xlib_path} PATH CACHE)
-               include_directories(${x11_path})
-               set(dlib_needed_libraries ${dlib_needed_libraries} ${xlib} )
+            find_package(X11 QUIET)
+            if (X11_FOUND)
+               include_directories(${X11_INCLUDE_DIR})
+               set (dlib_needed_libraries ${dlib_needed_libraries} ${X11_LIBRARIES})
             else()
+               find_library(xlib X11)
+               # Make sure X11 is in the include path.  Note that we look for
+               # Xlocale.h rather than Xlib.h because it avoids finding a partial
+               # copy of the X11 headers on systems with anaconda installed.
+               find_path(xlib_path Xlocale.h
+                  PATHS 
+                  /Developer/SDKs/MacOSX10.4u.sdk/usr/X11R6/include
+                  /opt/local/include
+                  PATH_SUFFIXES X11
+                  )
+               if (xlib AND xlib_path)
+                  get_filename_component(x11_path ${xlib_path} PATH CACHE)
+                  include_directories(${x11_path})
+                  set(dlib_needed_libraries ${dlib_needed_libraries} ${xlib} )
+                  set(X11_FOUND 1)
+               endif()
+            endif()
+            if (NOT X11_FOUND)
                message(" *****************************************************************************")
                message(" *** DLIB GUI SUPPORT DISABLED BECAUSE X11 DEVELOPMENT LIBRARIES NOT FOUND ***")
                message(" *** Make sure XQuartz is installed if you want GUI support.               ***")
@@ -200,7 +185,7 @@ if (NOT TARGET dlib)
          find_library(pthreadlib pthread)
          set (dlib_needed_libraries ${pthreadlib})
 
-         # link to the nsl library if it exists.  this is something you need sometimes
+         # link to the nsl library if it exists.  this is something you need sometimes 
          find_library(nsllib nsl)
          if (nsllib)
             set (dlib_needed_libraries ${dlib_needed_libraries} ${nsllib})
@@ -246,10 +231,10 @@ if (NOT TARGET dlib)
       INCLUDE (CheckFunctionExists)
 
       if (DLIB_PNG_SUPPORT)
-         # try to find libpng
+         # try to find libpng 
          find_package(PNG QUIET)
          # Make sure there isn't something wrong with the version of LIBPNG
-         # installed on this system.
+         # installed on this system.  
          if (PNG_FOUND)
             set(CMAKE_REQUIRED_LIBRARIES ${PNG_LIBRARY})
             CHECK_FUNCTION_EXISTS(png_create_read_struct LIBPNG_IS_GOOD)
@@ -300,9 +285,9 @@ if (NOT TARGET dlib)
       endif()
 
       if (DLIB_JPEG_SUPPORT)
-         # try to find libjpeg
+         # try to find libjpeg 
          find_package(JPEG QUIET)
-         # Make sure there isn't something wrong with the version of libjpeg
+         # Make sure there isn't something wrong with the version of libjpeg 
          # installed on this system.  Also don't use the installed libjpeg
          # if this is an APPLE system because apparently it's broken (as of 2015/01/01).
          if (JPEG_FOUND)
@@ -315,12 +300,6 @@ if (NOT TARGET dlib)
          else()
             # If we can't find libjpeg then statically compile it in.
             add_definitions(-DDLIB_JPEG_STATIC)
-
-            if ("${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
-                # register is deprecated on C++11 (used in libjpeg)
-                add_definitions(-Wno-deprecated-register)
-            endif()
-
             set(source_files ${source_files}
                   external/libjpeg/jcomapi.cpp
                   external/libjpeg/jdapimin.cpp
@@ -347,7 +326,7 @@ if (NOT TARGET dlib)
                   external/libjpeg/jmemnobs.cpp
                   external/libjpeg/jquant1.cpp
                   external/libjpeg/jquant2.cpp
-                  external/libjpeg/jutils.cpp
+                  external/libjpeg/jutils.cpp  
                   external/libjpeg/jcapimin.cpp
                   external/libjpeg/jdatadst.cpp
                   external/libjpeg/jcparam.cpp
@@ -356,12 +335,12 @@ if (NOT TARGET dlib)
                   external/libjpeg/jcinit.cpp
                   external/libjpeg/jcmaster.cpp
                   external/libjpeg/jcdctmgr.cpp
-                  external/libjpeg/jccoefct.cpp
-                  external/libjpeg/jccolor.cpp
-                  external/libjpeg/jchuff.cpp
-                  external/libjpeg/jcmainct.cpp
-                  external/libjpeg/jcphuff.cpp
-                  external/libjpeg/jcprepct.cpp
+                  external/libjpeg/jccoefct.cpp  
+                  external/libjpeg/jccolor.cpp  
+                  external/libjpeg/jchuff.cpp  
+                  external/libjpeg/jcmainct.cpp  
+                  external/libjpeg/jcphuff.cpp  
+                  external/libjpeg/jcprepct.cpp  
                   external/libjpeg/jcsample.cpp
                   external/libjpeg/jfdctint.cpp
                   external/libjpeg/jfdctflt.cpp
@@ -376,7 +355,7 @@ if (NOT TARGET dlib)
 
 
       if (DLIB_USE_BLAS OR DLIB_USE_LAPACK)
-         # Try to find BLAS and LAPACK
+         # Try to find BLAS and LAPACK 
          include(cmake_find_blas.txt)
 
          if (DLIB_USE_BLAS)
@@ -441,16 +420,16 @@ if (NOT TARGET dlib)
    if (NOT DLIB_IN_PROJECT_BUILD)
        if(UNIX)
            set_target_properties(dlib-shared PROPERTIES
-                                        OUTPUT_NAME dlib
+                                        OUTPUT_NAME dlib 
                                         VERSION ${VERSION})
            install(TARGETS dlib dlib-shared
-                   EXPORT dlib
+                   EXPORT dlib 
                    RUNTIME DESTINATION bin # Windows (including cygwin) considers .dll to be runtime artifacts
                    LIBRARY DESTINATION lib
                    ARCHIVE DESTINATION lib)
        else()
            install(TARGETS dlib
-                   EXPORT dlib
+                   EXPORT dlib 
                    RUNTIME DESTINATION bin # Windows considers .dll to be runtime artifacts
                    LIBRARY DESTINATION lib
                    ARCHIVE DESTINATION lib)
@@ -461,7 +440,7 @@ if (NOT TARGET dlib)
                REGEX "${CMAKE_CURRENT_BINARY_DIR}" EXCLUDE)
 
 
-             configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
+       configure_file(${PROJECT_SOURCE_DIR}/config.h.in ${CMAKE_CURRENT_BINARY_DIR}/config.h)
        # overwrite config.h with the configured one
        install(FILES ${CMAKE_CURRENT_BINARY_DIR}/config.h DESTINATION include/dlib)
 
@@ -487,9 +466,9 @@ if (NOT TARGET dlib)
            COMPATIBILITY AnyNewerVersion
            )
 
-       install(FILES
-                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfig.cmake"
-                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfigVersion.cmake"
+       install(FILES 
+                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfig.cmake" 
+                    "${CMAKE_CURRENT_BINARY_DIR}/config/dlibConfigVersion.cmake" 
                DESTINATION ${ConfigPackageLocation})
    endif()
 
