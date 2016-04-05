@@ -153,6 +153,7 @@
          <term file="optimization.html" name="find_min_single_variable"       include="dlib/optimization.h"/>
          <term file="optimization.html" name="find_min_using_approximate_derivatives" include="dlib/optimization.h"/>
          <term file="optimization.html" name="find_min_bobyqa"                include="dlib/optimization.h"/>
+         <term file="optimization.html" name="solve_qp_box_constrained"       include="dlib/optimization.h"/>
          <term file="optimization.html" name="solve_qp_using_smo"             include="dlib/optimization.h"/>
          <term file="optimization.html" name="solve_qp2_using_smo"            include="dlib/optimization.h"/>
          <term file="optimization.html" name="solve_qp3_using_smo"            include="dlib/optimization.h"/>
@@ -258,6 +259,8 @@
          <term file="linear_algebra.html" name="rotation_matrix"           include="dlib/geometry.h"/>
          <term file="algorithms.html" name="running_stats"                 include="dlib/statistics.h"/>
          <term file="algorithms.html" name="running_gradient"              include="dlib/statistics/running_gradient.h"/>
+         <term file="dlib/statistics/running_gradient_abstract.h.html" name="probability_gradient_greater_than"  include="dlib/statistics/running_gradient.h"/>
+         <term file="dlib/statistics/running_gradient_abstract.h.html" name="probability_gradient_less_than"  include="dlib/statistics/running_gradient.h"/>
          <term file="algorithms.html" name="running_scalar_covariance"     include="dlib/statistics.h"/>
          <term file="algorithms.html" name="mean_sign_agreement"           include="dlib/statistics.h"/>
          <term file="algorithms.html" name="correlation"                   include="dlib/statistics.h"/>
