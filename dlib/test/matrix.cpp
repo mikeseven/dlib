@@ -433,6 +433,8 @@ namespace
                 {
                     DLIB_TEST(subm(a,1,2,2,3)(r,c) == (r+1)*a.nc() + c+2);
                     DLIB_TEST(subm(a,1,2,2,3) == subm(a,rect));
+                    DLIB_TEST(subm_clipped(a,1,2,2,3) == subm(a,rect));
+                    DLIB_TEST(subm_clipped(a,1,2,2,3) == subm_clipped(a,rect));
                 }
             }
 
@@ -686,7 +688,7 @@ namespace
             matrix<double> L = chol(m);
             DLIB_TEST(equal(L*trans(L), m));
 
-            DLIB_TEST_MSG(equal(inv(m), inv_upper_triangular(trans(L))*inv_lower_triangular((L))), "") 
+            DLIB_TEST_MSG(equal(inv(m), inv_upper_triangular(trans(L))*inv_lower_triangular((L))), "");
             DLIB_TEST(equal(round_zeros(inv_upper_triangular(trans(L))*trans(L),1e-10), identity_matrix<double>(3), 1e-10)); 
             DLIB_TEST(equal(round_zeros(inv_lower_triangular((L))*(L),1e-10) ,identity_matrix<double>(3),1e-10)); 
 
@@ -711,9 +713,9 @@ namespace
             matrix<double> L = chol(m);
             DLIB_TEST_MSG(equal(L*trans(L), m, 1e-10), L*trans(L)-m);
 
-            DLIB_TEST_MSG(equal(inv(m), inv_upper_triangular(trans(L))*inv_lower_triangular((L))), "") 
-            DLIB_TEST_MSG(equal(inv(m), trans(inv_lower_triangular(L))*inv_lower_triangular((L))), "") 
-            DLIB_TEST_MSG(equal(inv(m), trans(inv_lower_triangular(L))*trans(inv_upper_triangular(trans(L)))), "") 
+            DLIB_TEST_MSG(equal(inv(m), inv_upper_triangular(trans(L))*inv_lower_triangular((L))), "");
+            DLIB_TEST_MSG(equal(inv(m), trans(inv_lower_triangular(L))*inv_lower_triangular((L))), ""); 
+            DLIB_TEST_MSG(equal(inv(m), trans(inv_lower_triangular(L))*trans(inv_upper_triangular(trans(L)))), "");
             DLIB_TEST_MSG(equal(round_zeros(inv_upper_triangular(trans(L))*trans(L),1e-10) , identity_matrix<double>(6), 1e-10),
                          round_zeros(inv_upper_triangular(trans(L))*trans(L),1e-10)); 
             DLIB_TEST_MSG(equal(round_zeros(inv_lower_triangular((L))*(L),1e-10) ,identity_matrix<double>(6), 1e-10),
@@ -745,7 +747,7 @@ namespace
             matrix<double> L = chol(m);
             DLIB_TEST_MSG(equal(L*trans(L), m, 1e-10), L*trans(L)-m);
 
-            DLIB_TEST_MSG(equal(inv(m), inv_upper_triangular(trans(L))*inv_lower_triangular((L))), "") 
+            DLIB_TEST_MSG(equal(inv(m), inv_upper_triangular(trans(L))*inv_lower_triangular((L))), ""); 
             DLIB_TEST_MSG(equal(round_zeros(inv_upper_triangular(trans(L))*trans(L),1e-10) , identity_matrix<double>(6), 1e-10),
                          round_zeros(inv_upper_triangular(trans(L))*trans(L),1e-10)); 
             DLIB_TEST_MSG(equal(round_zeros(inv_lower_triangular((L))*(L),1e-10) ,identity_matrix<double>(6), 1e-10),
