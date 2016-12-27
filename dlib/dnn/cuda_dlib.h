@@ -23,6 +23,13 @@ namespace dlib
         int get_num_devices (
         );
 
+        std::string get_device_name (
+            int device
+        );
+
+        void set_current_device_blocking_sync(
+        );
+
         bool can_access_peer (int device_id, int peer_device_id);
         bool can_access_peer (const tensor& device, const tensor& peer_device);
 
@@ -100,6 +107,53 @@ namespace dlib
         };
 
     // -----------------------------------------------------------------------------------
+
+        void inverse_norms (
+            resizable_tensor& invnorms,
+            const tensor& data,
+            const double eps
+        );
+
+        void dot_prods (
+            resizable_tensor& out,
+            const tensor& lhs,
+            const tensor& rhs
+        );
+
+        void scale_columns (
+            tensor& out,
+            const tensor& m,
+            const tensor& v
+        );
+
+        void scale_rows (
+            tensor& out,
+            const tensor& m,
+            const tensor& v
+        );
+
+        void scale_rows2 (
+            float beta, 
+            tensor& out,
+            const tensor& m1,
+            const tensor& m2,
+            const tensor& v1,
+            const tensor& v2
+        );
+
+    // ------------------------------------------------------------------------------------
+
+        void set_tensor (
+            tensor& t,
+            float value
+        );
+
+        void scale_tensor (
+            tensor& t,
+            float value
+        );
+
+    // ------------------------------------------------------------------------------------
 
         void multiply (
             bool add_to,
@@ -181,6 +235,13 @@ namespace dlib
         void add_scaled(
             tensor& dest,
             const float scale,
+            const tensor& src
+        );
+
+        void add_cv_to_all_columns(
+            float beta, 
+            tensor& dest, 
+            float alpha, 
             const tensor& src
         );
 
@@ -284,6 +345,18 @@ namespace dlib
 
         inline int get_num_devices (
         ) { return 1; }
+
+        inline std::string get_device_name (
+            int device
+        ) 
+        {
+            DLIB_CASSERT(device == 0, "dlib::cuda::set_device(id) called with an invalid device id.");
+            return "CUDA_DISABLED";
+        }
+
+        inline void set_current_device_blocking_sync(
+        ) {}
+
 
         inline bool can_access_peer (int , int )
         { return false; }

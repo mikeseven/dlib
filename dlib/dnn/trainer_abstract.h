@@ -38,11 +38,16 @@ namespace dlib
                 currently selected (i.e. the one indicated by cudaGetDevice()) when
                 dnn_trainer is constructed.  It will continue to use that device even if
                 you later change it by a call to cudaSetDevice().
+
+            EXCEPTIONS
+                If an exception is thrown by any part of the neural network during training
+                then the exception will be propagated out of the trainer to the user.
+                Moreover, the trainer instance will be unusable and should be destroyed.
         !*/
 
     public:
 
-        typedef typename net_type::label_type label_type;
+        typedef typename net_type::training_label_type training_label_type;
         typedef typename net_type::input_type input_type;
         const static size_t num_computational_layers = net_type::num_computational_layers;
 
@@ -83,8 +88,8 @@ namespace dlib
                       cuda_extra_devices.
         !*/
 
-       net_type& get_net (
-        ) const; 
+        net_type& get_net (
+        ); 
         /*!
             ensures
                 - returns the neural network object used by this trainer.  This is the
@@ -94,6 +99,8 @@ namespace dlib
                   dnn_trainer's constructor.
                 - This function blocks until all threads inside the dnn_trainer have
                   stopped touching the net. 
+                - This function will sync the trainer state to disk if the current state 
+                  hasn't already been synced to disk since the last network modification.
         !*/
 
         const std::vector<solver_type>& get_solvers (
@@ -336,14 +343,14 @@ namespace dlib
 
         void train (
             const std::vector<input_type>& data,
-            const std::vector<label_type>& labels 
+            const std::vector<training_label_type>& labels 
         ); 
         /*!
             requires
                 - data.size() == labels.size()
                 - data.size() > 0
                 - net_type uses a supervised loss.  
-                  i.e. net_type::label_type != no_label_type.
+                  i.e. net_type::training_label_type != no_label_type.
             ensures
                 - Trains a supervised neural network based on the given training data.
                   The goal of training is to find the network parameters that minimize
@@ -360,6 +367,8 @@ namespace dlib
                   will pick up from the last synchronization point.  
                 - You can obtain the average loss value during the final training epoch by
                   calling get_average_loss().
+                - This function blocks until all threads inside the dnn_trainer have
+                  stopped touching the net. 
         !*/
 
         void train (
@@ -369,7 +378,7 @@ namespace dlib
             requires 
                 - data.size() > 0
                 - net_type uses an unsupervised loss.  
-                  i.e. net_type::label_type == no_label_type.
+                  i.e. net_type::training_label_type == no_label_type.
             ensures
                 - Trains an unsupervised neural network based on the given training data.
                   The goal of training is to find the network parameters that minimize
@@ -386,18 +395,51 @@ namespace dlib
                   will pick up from the last synchronization point.  
                 - You can obtain the average loss value during the final training epoch by
                   calling get_average_loss().
+                - This function blocks until all threads inside the dnn_trainer have
+                  stopped touching the net. 
         !*/
 
         void train_one_step (
             const std::vector<input_type>& data,
-            const std::vector<label_type>& labels 
+            const std::vector<training_label_type>& labels 
         );
         /*!
             requires
                 - data.size() == labels.size()
                 - data.size() > 0
                 - net_type uses a supervised loss.  
-                  i.e. net_type::label_type != no_label_type.
+                  i.e. net_type::training_label_type != no_label_type.
+            ensures
+                - Performs one stochastic gradient update step based on the mini-batch of
+                  data and labels supplied to this function.  In particular, calling
+                  train_one_step() in a loop is equivalent to calling the train() method
+                  defined above.  However, train_one_step() allows you to stream data from
+                  disk into the training process while train() requires you to first load
+                  all the training data into RAM.  Otherwise, these training methods are
+                  equivalent.
+                - You can observe the current average loss value by calling get_average_loss().
+                - The network training will happen in another thread.  Therefore, after
+                  calling this function you should call get_net() before you touch the net
+                  object from the calling thread to ensure no other threads are still
+                  accessing the network.
+                - #get_train_one_step_calls() == get_train_one_step_calls() + 1.
+        !*/
+
+        template <
+            typename data_iterator,
+            typename label_iterator
+            >
+        void train_one_step (
+            data_iterator dbegin,
+            data_iterator dend,
+            label_iterator lbegin
+        );
+        /*!
+            requires
+                - std::advance(lbegin, std::distance(dbegin, dend) - 1) is dereferencable
+                - std::distance(dbegin, dend) > 0
+                - net_type uses a supervised loss.  
+                  i.e. net_type::training_label_type != no_label_type.
             ensures
                 - Performs one stochastic gradient update step based on the mini-batch of
                   data and labels supplied to this function.  In particular, calling
@@ -421,7 +463,7 @@ namespace dlib
             requires
                 - data.size() > 0
                 - net_type uses an unsupervised loss.  
-                  i.e. net_type::label_type == no_label_type.
+                  i.e. net_type::training_label_type == no_label_type.
             ensures
                 - Performs one stochastic gradient update step based on the mini-batch of
                   data supplied to this function.  In particular, calling train_one_step()
@@ -438,6 +480,34 @@ namespace dlib
                 - #get_train_one_step_calls() == get_train_one_step_calls() + 1.
         !*/
 
+        template <
+            typename data_iterator
+            >
+        void train_one_step (
+            data_iterator dbegin,
+            data_iterator dend
+        );
+        /*!
+            requires
+                - std::distance(dbegin, dend) > 0
+                - net_type uses an unsupervised loss.  
+                  i.e. net_type::training_label_type == no_label_type.
+            ensures
+                - Performs one stochastic gradient update step based on the mini-batch of
+                  data supplied to this function.  In particular, calling train_one_step()
+                  in a loop is equivalent to calling the train() method defined above.
+                  However, train_one_step() allows you to stream data from disk into the
+                  training process while train() requires you to first load all the
+                  training data into RAM.  Otherwise, these training methods are
+                  equivalent.
+                - You can observe the current average loss value by calling get_average_loss().
+                - The network training will happen in another thread.  Therefore, after
+                  calling this function you should call get_net() before you touch the net
+                  object from the calling thread to ensure no other threads are still
+                  accessing the network.
+                - #get_train_one_step_calls() == get_train_one_step_calls() + 1.
+        !*/
+        
         double get_average_loss (
         ) const;
         /*!

@@ -9,6 +9,7 @@ cmake_minimum_required(VERSION 2.8.4)
 set (target_name imglab)
 
 PROJECT(${target_name})
+include(../../dlib/cmake)
 
 # add all the cpp files we want to compile to this list.  This tells
 # cmake that they are part of our target (which is the executable named imglab)
@@ -29,11 +30,11 @@ ADD_EXECUTABLE(${target_name}
 
 
 # Tell cmake to link our target executable to dlib.  
-include(../../dlib/cmake)
 TARGET_LINK_LIBRARIES(${target_name} dlib )
 
 
 INSTALL(TARGETS ${target_name}
 	RUNTIME DESTINATION bin
 	)
+INSTALL(PROGRAMS convert_imglab_paths_to_relative copy_imglab_dataset DESTINATION bin )
 
