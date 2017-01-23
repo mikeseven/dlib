@@ -63,6 +63,14 @@ macro (toggle_preprocessor_switch option_name)
    endif()
 endmacro()
 
+# Suppress superfluous randlib warnings about libdlib.a having no symbols on MacOSX.
+if (APPLE)
+    set(CMAKE_C_ARCHIVE_CREATE   "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_CXX_ARCHIVE_CREATE "<CMAKE_AR> Scr <TARGET> <LINK_FLAGS> <OBJECTS>")
+    set(CMAKE_C_ARCHIVE_FINISH   "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+    set(CMAKE_CXX_ARCHIVE_FINISH "<CMAKE_RANLIB> -no_warning_for_no_symbols -c <TARGET>")
+endif()
+
 # Don't try to call add_library(dlib) and setup dlib's stuff if it has already
 # been done by some other part of the current cmake project.  We do this
 # because it avoids getting warnings/errors about cmake policy CMP0002.  This
@@ -511,13 +519,13 @@ if (NOT TARGET dlib)
             # -std=c++11 option if you let it propagate it to nvcc in some
             # cases.  So instead we disable this and manually include
             # things from CMAKE_CXX_FLAGS in the CUDA_NVCC_FLAGS list below.
-            if (!MSVC)
+            if (APPLE)
                set(CUDA_PROPAGATE_HOST_FLAGS OFF)
+               # Grab all the -D flags from CMAKE_CXX_FLAGS so we can pass them
+               # to nvcc.
+               string(REGEX MATCHALL "-D[^ ]*" FLAGS_FOR_NVCC ${CMAKE_CXX_FLAGS})
             endif()
 
-            # Grab all the -D flags from CMAKE_CXX_FLAGS so we can pass them
-            # to nvcc.
-            string(REGEX MATCHALL "-D[^ ]*" FLAGS_FOR_NVCC ${CMAKE_CXX_FLAGS})
 
             set(CUDA_HOST_COMPILATION_CPP ON)
             # Note that we add __STRICT_ANSI__ to avoid freaking out nvcc with gcc specific
